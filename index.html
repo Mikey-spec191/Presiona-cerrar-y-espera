@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Error del sistema central</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .overlay.active {
+            display: flex;
+        }
+
+        .error-panel {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid #ff4444;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 10px 40px rgba(255, 68, 68, 0.3);
+            position: relative;
+            animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .error-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .error-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #ff4444;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .error-title {
+            color: #ff4444;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #e0e0e0;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .close-button:active {
+            transform: scale(0.95);
+            background-color: #cc0000;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100px) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        .overlay.closing .error-panel {
+            animation: slideOut 0.3s ease-in-out forwards;
+        }
+
+        /* Ajustes para dispositivos móviles */
+        @media (max-width: 480px) {
+            .error-panel {
+                padding: 25px;
+                width: 85%;
+            }
+
+            .error-title {
+                font-size: 16px;
+            }
+
+            .error-message {
+                font-size: 14px;
+            }
+
+            .close-button {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay">
+        <div class="error-panel">
+            <div class="error-header">
+                <div class="error-icon">!</div>
+                <div class="error-title">Error en mi corazón</div>
+            </div>
+            <div class="error-message" id="errorMessage">
+                Cargando...
+            </div>
+            <button class="close-button" id="closeButton">Cerrar</button>
+        </div>
+    </div>
+
+    <audio id="audio" preload="auto">
+        <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663155158111/aqDarqyHbhsenHJU.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Datos de sincronización de la letra con la canción
+        const lyrics = [
+            { text: "Odio que tengas que gustarme tanto", start: 2, end: 8 },
+            { text: "Y que nada saliera como esperabas", start: 8, end: 11 },
+            { text: "Y ya no puedo ni mirarte cuando", start: 11, end: 16 },
+            { text: "Mi corazón hace que revivan las ganas", start: 16, end: 18 },
+            { text: "Odio que tengas que gustarme tanto", start: 18, end: 22 },
+            { text: "Y que nada saliera como esperabas", start: 22, end: 25 },
+            { text: "Y ya no puedo ni mirarte cuando", start: 25, end: 29 },
+            { text: "Mi corazón hace que revivan las ganas", start: 29, end: 33 },
+            { text: "De besarte hasta que se me olvide cómo", start: 33, end: 36 },
+            { text: "Empezamos todo", start: 36, end: 37.7 },
+            { text: "Y que tú no quieres una relación de verdad", start: 37.7, end: 41 },
+            { text: "Por eso me siento un bobo", start: 41, end: 42.7 },
+            { text: "Porque yo haría todo", start: 42.7, end: 44 },
+            { text: "Por el simple hecho de tener cerca", start: 44, end: 48 },
+            { text: "Y vos solo me ves como otra persona", start: 48, end: 52 },
+            { text: "De \"parta el vidrio, solo en caso de emergencia\"", start: 52, end: 55 },
+            { text: "Y yo ya no encuentro modo de cómo decirte que no", start: 55, end: 60 },
+            { text: "Y por eso odio que tengas que gustarme tanto", start: 60, end: 64 },
+            { text: "Y que nada saliera como esperabas", start: 64, end: 67 },
+            { text: "Y ya no puedo ni mirarte cuando", start: 67, end: 71 },
+            { text: "Mi corazón hace que revivan las ganas", start: 71, end: 74 },
+            { text: "Odio que tengas que gustarme tanto", start: 74, end: 78 },
+            { text: "Y que nada saliera como esperabas", start: 78, end: 81 },
+            { text: "Y ya no puedo ni mirarte cuando", start: 81, end: 85 },
+            { text: "Mi corazón hace que revivan las ganas", start: 85, end: 92 }
+        ];
+
+        const overlay = document.getElementById('overlay');
+        const errorMessage = document.getElementById('errorMessage');
+        const closeButton = document.getElementById('closeButton');
+        const audio = document.getElementById('audio');
+
+        let currentIndex = 0;
+        let audioStarted = false;
+
+        // Función para mostrar un panel
+        function showPanel(index) {
+            if (index >= lyrics.length) {
+                return; // Termina cuando se acaban las líneas
+            }
+
+            currentIndex = index;
+            errorMessage.textContent = lyrics[index].text;
+            overlay.classList.remove('closing');
+            overlay.classList.add('active');
+        }
+
+        // Función para cerrar el panel
+        function closePanel() {
+            overlay.classList.add('closing');
+            
+            setTimeout(() => {
+                overlay.classList.remove('active', 'closing');
+                
+                // Mostrar el siguiente panel si existe
+                if (currentIndex + 1 < lyrics.length) {
+                    // Esperar un breve momento antes de mostrar el siguiente
+                    setTimeout(() => {
+                        showPanel(currentIndex + 1);
+                    }, 200);
+                }
+            }, 300);
+        }
+
+        // Función para sincronizar con el audio
+        function syncWithAudio() {
+            const currentTime = audio.currentTime;
+            
+            // Buscar la línea actual basada en el tiempo de reproducción
+            for (let i = 0; i < lyrics.length; i++) {
+                if (currentTime >= lyrics[i].start && currentTime < lyrics[i].end) {
+                    // Solo mostrar si es diferente del panel actual
+                    if (currentIndex !== i) {
+                        showPanel(i);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Evento del botón de cerrar
+        closeButton.addEventListener('click', () => {
+            closePanel();
+        });
+
+        // Evento de toque en el overlay (fuera del panel) para cerrar
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closePanel();
+            }
+        });
+
+        // Iniciar la experiencia cuando se carga la página
+        window.addEventListener('load', () => {
+            // Pequeño delay para asegurar que todo esté cargado
+            setTimeout(() => {
+                // Intentar reproducir el audio automáticamente
+                const playPromise = audio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        // Audio se reproduce automáticamente
+                        audioStarted = true;
+                        // Sincronizar paneles con el audio
+                        audio.addEventListener('timeupdate', syncWithAudio);
+                    }).catch(() => {
+                        // Si falla la reproducción automática (política del navegador)
+                        // Mostrar el primer panel y esperar interacción del usuario
+                        showPanel(0);
+                        
+                        // Intentar reproducir cuando el usuario cierre el primer panel
+                        closeButton.addEventListener('click', () => {
+                            if (!audioStarted) {
+                                audio.play().then(() => {
+                                    audioStarted = true;
+                                    audio.addEventListener('timeupdate', syncWithAudio);
+                                }).catch(() => {
+                                    // Si aún falla, continuar sin audio
+                                    console.log('No se pudo reproducir el audio automáticamente');
+                                });
+                            }
+                        }, { once: true });
+                    });
+                }
+            }, 500);
+        });
+
+        // Prevenir el zoom en dispositivos móviles
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
+
